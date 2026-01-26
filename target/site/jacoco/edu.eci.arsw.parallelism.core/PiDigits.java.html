@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PiDigits.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parallelism</a> &gt; <a href="index.source.html" class="el_package">edu.eci.arsw.parallelism.core</a> &gt; <span class="el_source">PiDigits.java</span></div><h1>PiDigits.java</h1><pre class="source lang-java linenums">
+package edu.eci.arsw.parallelism.core;
+
+/**
+ * Bailey–Borwein–Plouffe (BBP) formula implementation to compute hexadecimal
+ * digits of Pi.
+ *
+ * Digits returned are the hexadecimal digits of Pi after the radix point (Pi =
+ * 3.&lt;digits...&gt; in base 16).
+ *
+ * This is the same algorithm family used in the classic ARSW exercise, adapted
+ * to this project structure.
+ */
+<span class="nc" id="L14">public class PiDigits {</span>
+
+    private static final int DIGITS_PER_SUM = 8;
+    private static final double EPSILON = 1e-17;
+
+    /**
+     * Returns a range of hexadecimal digits of Pi (after the radix point).
+     *
+     * @param start 0-based position after the radix point.
+     * @param count number of digits to return.
+     * @return array of digits, each value 0..15.
+     */
+    public static byte[] getDigits(int start, int count) {
+<span class="fc bfc" id="L27" title="All 4 branches covered.">        if (start &lt; 0 || count &lt; 0) {</span>
+<span class="fc" id="L28">            throw new IllegalArgumentException(&quot;Invalid interval: start and count must be non-negative&quot;);</span>
+        }
+
+<span class="fc" id="L31">        byte[] digits = new byte[count];</span>
+<span class="fc" id="L32">        double sum = 0.0;</span>
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (i % DIGITS_PER_SUM == 0) {</span>
+<span class="fc" id="L36">                sum = 4 * sum(1, start)</span>
+<span class="fc" id="L37">                        - 2 * sum(4, start)</span>
+<span class="fc" id="L38">                        - sum(5, start)</span>
+<span class="fc" id="L39">                        - sum(6, start);</span>
+<span class="fc" id="L40">                start += DIGITS_PER_SUM;</span>
+            }
+
+<span class="fc" id="L43">            sum = 16 * (sum - Math.floor(sum));</span>
+<span class="fc" id="L44">            digits[i] = (byte) sum; // 0..15</span>
+        }
+
+<span class="fc" id="L47">        return digits;</span>
+    }
+
+    /**
+     * Convenience method: returns the digits as an uppercase hex string (0-9A-F).
+     */
+    public static String getDigitsHex(int start, int count) {
+<span class="fc" id="L54">        byte[] digits = getDigits(start, count);</span>
+<span class="fc" id="L55">        StringBuilder sb = new StringBuilder(digits.length);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (byte d : digits) {</span>
+<span class="fc" id="L57">            int v = d &amp; 0xFF;</span>
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">            if (v &lt; 0 || v &gt; 15) {</span>
+<span class="nc" id="L59">                throw new IllegalStateException(&quot;Unexpected digit value: &quot; + v);</span>
+            }
+<span class="fc" id="L61">            sb.append(Character.toUpperCase(Character.forDigit(v, 16)));</span>
+        }
+<span class="fc" id="L63">        return sb.toString();</span>
+    }
+
+    /**
+     * Returns the sum of 16^(n-k)/(8k+m) from k=0 to infinity (until terms are
+     * below EPSILON).
+     */
+    private static double sum(int m, int n) {
+<span class="fc" id="L71">        double sum = 0.0;</span>
+<span class="fc" id="L72">        int d = m;</span>
+<span class="fc" id="L73">        int power = n;</span>
+
+        while (true) {
+            double term;
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            if (power &gt; 0) {</span>
+<span class="fc" id="L79">                term = (double) hexExponentModulo(power, d) / d;</span>
+            } else {
+<span class="fc" id="L81">                term = Math.pow(16, power) / d;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">                if (term &lt; EPSILON) {</span>
+<span class="fc" id="L83">                    break;</span>
+                }
+            }
+
+<span class="fc" id="L87">            sum += term;</span>
+<span class="fc" id="L88">            power--;</span>
+<span class="fc" id="L89">            d += 8;</span>
+<span class="fc" id="L90">        }</span>
+
+<span class="fc" id="L92">        return sum;</span>
+    }
+
+    /**
+     * Return 16^p mod m.
+     */
+    private static int hexExponentModulo(int p, int m) {
+<span class="fc" id="L99">        int power = 1;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        while (power * 2 &lt;= p) {</span>
+<span class="fc" id="L101">            power *= 2;</span>
+        }
+
+<span class="fc" id="L104">        int result = 1;</span>
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        while (power &gt; 0) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if (p &gt;= power) {</span>
+<span class="fc" id="L108">                result *= 16;</span>
+<span class="fc" id="L109">                result %= m;</span>
+<span class="fc" id="L110">                p -= power;</span>
+            }
+
+<span class="fc" id="L113">            power /= 2;</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            if (power &gt; 0) {</span>
+<span class="fc" id="L116">                result *= result;</span>
+<span class="fc" id="L117">                result %= m;</span>
+            }
+        }
+
+<span class="fc" id="L121">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
