@@ -47,7 +47,11 @@ public class PiDigitsController {
             @Parameter(description = "Starting position for Pi digits (0-indexed)", example = "0")
             @RequestParam @Min(0) int start,
             @Parameter(description = "Number of digits to calculate", example = "10")
-            @RequestParam @Min(1) int count
+            @RequestParam @Min(1) int count,
+            @Parameter(description = "Number of threads to use (optional, must be > 0)", example = "4")
+            @RequestParam(required = false) @Min(1) Integer threads,
+            @Parameter(description = "Calculation strategy: 'sequential' or 'threads' (optional)", example = "threads")
+            @RequestParam(required = false) String strategy
     ) {
         String digits = service.calculateSequential(start, count);
         return new PiResponse(start, count, digits);
