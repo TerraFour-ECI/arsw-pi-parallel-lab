@@ -51,8 +51,14 @@ public class ThreadJoinStrategy implements ParallelStrategy {
         return "threads";
     }
 
-    //private String calculateSegment(int start, int count) {
-
-
-    //}
+    /**
+     * Calculates a segment of hexadecimal Pi digits using the BBP algorithm.
+     *
+     * @param start the starting position (0-indexed) for Pi digit calculation
+     * @param count the number of digits to calculate in this segment
+     * @return hexadecimal string representation of the calculated Pi digits
+     */
+    private String calculateSegment(int start, int count) {
+        return edu.eci.arsw.parallelism.core.PiDigits.getDigitsHex(start, count);
+    }
 }
