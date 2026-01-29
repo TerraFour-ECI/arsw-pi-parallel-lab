@@ -1,6 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-parallelism,edu.eci.arsw.parallelism.core,PiDigitsService,0,7,0,0,0,2,0,2,0,2
-parallelism,edu.eci.arsw.parallelism.core,PiDigits,9,193,2,24,2,48,3,15,1,4
-parallelism,edu.eci.arsw.parallelism.api,PiResponse,0,12,0,0,0,1,0,1,0,1
-parallelism,edu.eci.arsw.parallelism.api,PiDigitsController,0,19,0,0,0,5,0,2,0,2
-parallelism,edu.eci.arsw.parallelism,ParallelismApplication,5,3,0,0,2,1,1,1,1,1
