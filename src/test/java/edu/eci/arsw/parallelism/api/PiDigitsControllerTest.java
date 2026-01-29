@@ -196,4 +196,103 @@ class PiDigitsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+
+// ========== Phase 1 - New Parameters Tests ==========
+
+
+    @Test
+    @DisplayName("Should work without threads and strategy parameters (backward compatibility)")
+    void shouldWorkWithoutOptionalParameters() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6"));
+    }
+
+
+    @Test
+    @DisplayName("Should work with strategy=sequential")
+    void shouldWorkWithSequentialStrategy() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5")
+                .param("strategy", "sequential"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6"));
+    }
+
+
+    @Test
+    @DisplayName("Should ignore threads parameter when strategy is sequential")
+    void shouldIgnoreThreadsWithSequentialStrategy() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5")
+                .param("strategy", "sequential")
+                .param("threads", "4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6"));
+    }
+
+
+    @Test
+    @DisplayName("Should accept threads strategy with valid threads parameter")
+    void shouldAcceptThreadsStrategyWithValidThreads() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5")
+                .param("strategy", "threads")
+                .param("threads", "4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6")); 
+    }
+
+
+    @Test
+    @DisplayName("Should return same digits with and without strategy parameter")
+    void shouldReturnSameDigitsWithAndWithoutStrategy() throws Exception {
+        String result1 = mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "10"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String result2 = mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "10")
+                .param("strategy", "sequential"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(result1, result2);
+    }
+
+    @Test
+    @DisplayName("Should accept threads=1 (minimum valid)")
+    void shouldAcceptThreadsOne() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5")
+                .param("strategy", "threads")
+                .param("threads", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6"));
+    }
+
+    @Test
+    @DisplayName("Should accept threads=200 (maximum valid)")
+    void shouldAcceptThreadsMax() throws Exception {
+        mockMvc.perform(get("/api/v1/pi/digits")
+                .param("start", "0")
+                .param("count", "5")
+                .param("strategy", "threads")
+                .param("threads", "200"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.digits").value("243F6"));
+    }
 }

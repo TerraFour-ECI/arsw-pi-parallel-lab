@@ -14,6 +14,7 @@ public class PiDigitsService {
     private static final int MAX_COUNT = 1_000_000; // 1 million digits max
     private static final int MAX_START = 10_000_000; // 10 million position max
     private static final long TIMEOUT_MILLIS = 60_000; // Seconds timeout
+    private static final int MAX_THREADS = 200; 
 
     /**
      * Calculates Pi digits sequentially with comprehensive validation.
@@ -109,5 +110,48 @@ public class PiDigitsService {
      */
     public int getMaxStart() {
         return MAX_START;
+    }
+
+
+    public String calculateWithStrategy(int start, int count, Integer threads, String strategy) {
+
+        logger.debug("Calculating Pi digits with strategy: start={}, count={}, threads={}, strategy={}", 
+                 start, count, threads, strategy);
+
+        validateInputs(start, count);
+
+        if (strategy == null || strategy.equals("sequential")) {
+
+            logger.debug("Using sequential strategy");
+            return calculateSequential(start, count);
+
+        } else if (strategy.equals("threads")) {
+            if (threads == null) {
+            throw new InvalidPiCalculationException(
+                "Threads parameter is required when using 'threads' strategy",
+                "threads", null);
+            }
+        
+            if (threads <= 0) {
+                throw new InvalidPiCalculationException(
+                    "Threads parameter must be greater than 0",
+                    "threads", threads);
+            }
+
+            if (threads > MAX_THREADS) {
+                throw new InvalidPiCalculationException(
+                String.format("Threads parameter exceeds maximum allowed value of %d", MAX_THREADS),
+                "threads", threads);
+            }
+
+            // return threadJoinStrategy.calculate(start, count, threads);
+            logger.warn("Parallel strategy not yet implemented, using sequential fallback");
+            return calculateSequential(start, count);
+
+        } else {
+            throw new InvalidPiCalculationException(
+                    "Invalid strategy. Must be 'sequential' or 'threads'",
+                    "strategy", strategy);
+        }
     }
 }

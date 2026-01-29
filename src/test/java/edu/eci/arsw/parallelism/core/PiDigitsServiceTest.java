@@ -233,4 +233,82 @@ class PiDigitsServiceTest {
         assertEquals(5, result.length());
         assertTrue(result.matches("[0-9A-F]+"));
     }
+
+    // ========== Phase 1 - calculateWithStrategy Tests ==========
+    
+
+    @Test
+    @DisplayName("Should default to sequential when strategy is null")
+    void testCalculateWithStrategyDefaultsToSequential() {
+        String result = service.calculateWithStrategy(0, 5, null, null);
+        assertEquals("243F6", result);
+    }
+    
+ 
+    @Test
+    @DisplayName("Should work with explicit sequential strategy")
+    void testCalculateWithStrategySequential() {
+        String result = service.calculateWithStrategy(0, 5, null, "sequential");
+        assertEquals("243F6", result);
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for invalid strategy")
+    void testCalculateWithStrategyInvalid() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 4, "invalid")
+        );
+        assertEquals("strategy", exception.getField());
+    }
+    
+
+    @Test
+    @DisplayName("Should require threads parameter when using threads strategy")
+    void testCalculateWithStrategyThreadsRequired() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, null, "threads")
+        );
+        assertEquals("threads", exception.getField());
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for threads <= 0")
+    void testCalculateWithStrategyThreadsInvalid() {
+        assertThrows(InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 0, "threads"));
+        assertThrows(InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, -5, "threads"));
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for threads exceeding maximum")
+    void testCalculateWithStrategyThreadsExceedsMax() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 201, "threads")
+        );
+        assertTrue(exception.getMessage().contains("200"));
+    }
+    
+
+    @Test
+    @DisplayName("Should accept threads strategy with valid threads (fallback)")
+    void testCalculateWithStrategyThreadsValid() {
+        String result = service.calculateWithStrategy(0, 5, 4, "threads");
+        assertEquals("243F6", result); 
+    }
+    
+    @Test
+    @DisplayName("Should return same result for sequential and threads (fallback)")
+    void testCalculateWithStrategyEquivalence() {
+        String sequential = service.calculateSequential(0, 10);
+        String withThreads = service.calculateWithStrategy(0, 10, 4, "threads");
+        assertEquals(sequential, withThreads);
+    }
+
 }
