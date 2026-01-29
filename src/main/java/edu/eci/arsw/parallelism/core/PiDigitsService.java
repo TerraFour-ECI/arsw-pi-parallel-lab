@@ -1,6 +1,7 @@
 
 package edu.eci.arsw.parallelism.core;
 
+import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
 import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
 import edu.eci.arsw.parallelism.core.exceptions.PiCalculationTimeoutException;
 import org.slf4j.Logger;
@@ -15,6 +16,18 @@ public class PiDigitsService {
     private static final int MAX_START = 10_000_000; // 10 million position max
     private static final long TIMEOUT_MILLIS = 60_000; // Seconds timeout
     private static final int MAX_THREADS = 200; 
+
+    private final SequentialStrategy sequentialStrategy;
+
+    /**
+     * Constructor with dependency injection of strategies.
+     * 
+     * @param sequentialStrategy sequential calculation strategy
+     * @param threadJoinStrategy parallel calculation strategy using threads
+     */
+    public PiDigitsService(SequentialStrategy sequentialStrategy) {
+        this.sequentialStrategy = sequentialStrategy;
+    }
 
     /**
      * Calculates Pi digits sequentially with comprehensive validation.
@@ -36,7 +49,7 @@ public class PiDigitsService {
         long startTime = System.currentTimeMillis();
         
         try {
-            String result = PiDigits.getDigitsHex(start, count);
+            String result = sequentialStrategy.calculate(start, count, 1);
             
             long elapsedTime = System.currentTimeMillis() - startTime;
             logger.info("Pi calculation completed: start={}, count={}, time={}ms", 
@@ -112,7 +125,16 @@ public class PiDigitsService {
         return MAX_START;
     }
 
-
+     /**
+     * Calculates Pi digits using the specified strategy.
+     * 
+     * @param start starting position (0-indexed)
+     * @param count number of digits to calculate
+     * @param threads number of threads to use (required for 'threads' strategy)
+     * @param strategy calculation strategy: 'sequential' or 'threads'
+     * @return hexadecimal string of Pi digits
+     * @throws InvalidPiCalculationException if parameters are invalid
+     */
     public String calculateWithStrategy(int start, int count, Integer threads, String strategy) {
 
         logger.debug("Calculating Pi digits with strategy: start={}, count={}, threads={}, strategy={}", 

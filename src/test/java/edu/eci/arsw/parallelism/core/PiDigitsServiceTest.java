@@ -1,5 +1,6 @@
 package edu.eci.arsw.parallelism.core;
 
+import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
 import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,10 @@ class PiDigitsServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PiDigitsService();
+
+        SequentialStrategy sequentialStrategy = new SequentialStrategy();
+        // ThreadJoinStrategy threadJoinStrategy = new ThreadJoinStrategy();
+        service = new PiDigitsService(sequentialStrategy);
     }
 
     // ========== Happy Path Tests ==========
