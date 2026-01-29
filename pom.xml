@@ -11,6 +11,12 @@
     <properties>
         <java.version>21</java.version>
         <spring.boot.version>3.3.5</spring.boot.version>
+        <!-- SonarCloud properties -->
+        <sonar.organization>terrafour-eci</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.projectKey>TerraFour-ECI_arsw-pi-parallel-lab</sonar.projectKey>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencyManagement>
