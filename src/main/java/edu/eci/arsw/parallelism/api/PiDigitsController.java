@@ -44,12 +44,16 @@ public class PiDigitsController {
     })
     @GetMapping("/digits")
     public PiResponse digits(
-            @Parameter(description = "Starting position for Pi digits (0-indexed)", example = "0")
+            @Parameter(description = "Starting position for Pi digits (0-indexed)", example = "0", required = true)
             @RequestParam @Min(0) int start,
-            @Parameter(description = "Number of digits to calculate", example = "10")
-            @RequestParam @Min(1) int count
+            @Parameter(description = "Number of digits to calculate", example = "10", required = true)
+            @RequestParam @Min(1) int count,
+            @Parameter(description = "Number of threads to use (optional, must be > 0)", example = "4", required = false)
+            @RequestParam(required = false) @Min(1) Integer threads,
+            @Parameter(description = "Calculation strategy: 'sequential' or 'threads' (optional)", example = "threads", schema = @Schema(allowableValues = {"sequential", "threads"}), required = false)
+            @RequestParam(required = false) String strategy
     ) {
-        String digits = service.calculateSequential(start, count);
+        String digits = service.calculateWithStrategy(start, count, threads, strategy);
         return new PiResponse(start, count, digits);
     }
 }
