@@ -1,79 +1,79 @@
-# ARSW – Laboratorio 1  
-## Paralelismo, Arquitectura y Calidad desde el Día 1  
+# ARSW – Lab 1  
+## Parallelism, Architecture and Quality from Day 1  
 **Spring Boot 3.x – Java 21 – REST – Testing – OpenAPI**
 
 ---
 
-## 🎯 Objetivo del laboratorio
+## 🎯 Lab Objective
 
-Este laboratorio introduce al estudiante en los **fundamentos del paralelismo y la concurrencia**, integrándolos desde el primer día con buenas prácticas de **Arquitectura de Software**:
+This lab introduces students to the **fundamentals of parallelism and concurrency**, integrating them from day one with **Software Architecture** best practices:
 
-- Diseño por capas  
-- Servicios REST bien definidos  
-- Pruebas automatizadas  
-- Cobertura de código  
-- Documentación de APIs  
-- Decisiones técnicas justificadas  
+- Layered design  
+- Well-defined REST services  
+- Automated testing  
+- Code coverage  
+- API documentation  
+- Justified technical decisions  
 
-El laboratorio se desarrolla en **dos fases dentro del mismo ejercicio**:
-- **Fase 0:** implementación base (secuencial)
-- **Fase 1:** modificación obligatoria para agregar paralelismo usando hilos
-
----
-
-## 🧠 Contexto
-
-El cálculo de los dígitos de π (Pi) es un problema clásico usado para ilustrar **cómputo intensivo y paralelismo**.  
-En este laboratorio, dicho cálculo se expone como un **servicio REST moderno**, el cual será evolucionado progresivamente.
-
-> ⚠️ El paralelismo **NO se introduce desde el inicio**.  
-> Primero se diseña correctamente la solución, luego se paraleliza.
+The lab is developed in **two phases within the same exercise**:
+- **Phase 0:** base implementation (sequential)
+- **Phase 1:** mandatory modification to add parallelism using threads
 
 ---
 
-## 🏗️ Arquitectura base del proyecto
+## 🧠 Context
 
-El proyecto sigue una arquitectura por capas:
+Calculating the digits of π (Pi) is a classic problem used to illustrate **intensive computation and parallelism**.  
+In this lab, this calculation is exposed as a **modern REST service**, which will be progressively evolved.
+
+> ⚠️ Parallelism is **NOT introduced from the start**.  
+> First, the solution is properly designed, then parallelized.
+
+---
+
+## 🏗️ Project Base Architecture
+
+The project follows a layered architecture:
 
 ```
-api/            → Controllers REST, DTOs, contratos  
-core/           → Lógica de negocio y algoritmos  
-concurrency/    → Estrategias de paralelismo  
-monitoring/     → Medición de tiempos y métricas básicas  
+api/            → REST Controllers, DTOs, contracts  
+core/           → Business logic and algorithms  
+concurrency/    → Parallelism strategies  
+monitoring/     → Time measurement and basic metrics  
 ```
 
-Regla clave:
-- El **Controller NO crea hilos**
-- El **Service orquesta**
-- Las **estrategias ejecutan la concurrencia**
+Key rule:
+- The **Controller does NOT create threads**
+- The **Service orchestrates**
+- The **strategies execute concurrency**
 
 ---
 
-## 🌐 API REST
+## 🌐 REST API
 
-### Endpoint base
+### Base Endpoint
 
 ```
 GET /api/v1/pi/digits?start={int}&count={int}
 ```
 
-### Endpoint extendido (Fase 1)
+### Extended Endpoint (Phase 1)
 
 ```
 GET /api/v1/pi/digits?start=&count=&threads=&strategy=
 ```
 
-Parámetros:
+Parameters:
 - `start` ≥ 0  
 - `count` > 0  
-- `threads` > 0 (opcional, default: availableProcessors)  
-- `strategy` (opcional): `sequential`, `threads`  
+- `threads` > 0 (optional, default: availableProcessors)  
+- `strategy` (optional): `sequential`, `threads`  
 
 ---
 
 ## 📘 OpenAPI / Swagger
 
-Swagger debe estar disponible en:
+Swagger should be available at:
 
 ```
 http://localhost:8080/swagger-ui/index.html
@@ -81,43 +81,43 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## 🧪 FASE 0 – Implementación base (secuencial)
+## 🧪 PHASE 0 – Base Implementation (sequential)
 
-### Objetivo
-Construir un servicio REST funcional, bien diseñado y cubierto por pruebas.
+### Objective
+Build a functional, well-designed REST service covered by tests.
 
-### Actividades
-1. Analizar la estructura del proyecto suministrado.
-2. Implementar el endpoint REST secuencial.
-3. Validar parámetros de entrada.
-4. Manejar errores correctamente.
-5. Documentar el API con Swagger.
-6. Implementar pruebas unitarias y de integración.
+### Activities
+1. Analyze the structure of the provided project.
+2. Implement the sequential REST endpoint.
+3. Validate input parameters.
+4. Handle errors correctly.
+5. Document the API with Swagger.
+6. Implement unit and integration tests.
 
-### Criterio de aceptación
-- El endpoint responde correctamente.
-- Swagger está accesible.
-- `mvn clean test` pasa sin errores.
+### Acceptance Criteria
+- The endpoint responds correctly.
+- Swagger is accessible.
+- `mvn clean test` passes without errors.
 
 ---
 
-## ⚙️ FASE 1 – Modificación obligatoria: agregar hilos
+## ⚙️ PHASE 1 – Mandatory Modification: add threads
 
-### Objetivo
-Evolucionar la solución para soportar paralelismo **sin romper la arquitectura**.
+### Objective
+Evolve the solution to support parallelism **without breaking the architecture**.
 
-### Actividades obligatorias
+### Mandatory Activities
 
-#### 1. Extender el endpoint
-Agregar soporte para:
+#### 1. Extend the endpoint
+Add support for:
 - `threads`
 - `strategy=threads`
 
-Si no se envían estos parámetros, el sistema debe comportarse de forma secuencial.
+If these parameters are not sent, the system should behave sequentially.
 
 ---
 
-#### 2. Crear la interfaz de estrategia
+#### 2. Create the strategy interface
 
 ```java
 public interface ParallelStrategy {
@@ -128,102 +128,102 @@ public interface ParallelStrategy {
 
 ---
 
-#### 3. Implementar `ThreadJoinStrategy` (OBLIGATORIO)
+#### 3. Implement `ThreadJoinStrategy` (MANDATORY)
 
-- Crear N hilos (platform threads).
-- Dividir el trabajo en segmentos.
-- Ejecutar cada segmento en paralelo.
-- Sincronizar usando `join()`.
-- Concatenar resultados en orden.
+- Create N threads (platform threads).
+- Divide the work into segments.
+- Execute each segment in parallel.
+- Synchronize using `join()`.
+- Concatenate results in order.
 
-El resultado **debe ser idéntico** al secuencial.
-
----
-
-#### 4. Modificar el Service
-- Delegar el cálculo a la estrategia.
-- Mantener el cálculo secuencial como fallback.
+The result **must be identical** to the sequential one.
 
 ---
 
-## 🧪 Pruebas y calidad (OBLIGATORIO)
+#### 4. Modify the Service
+- Delegate calculation to the strategy.
+- Keep sequential calculation as fallback.
 
-### Pruebas requeridas
+---
+
+## 🧪 Testing and Quality (MANDATORY)
+
+### Required Tests
 
 #### Controller
-- Casos válidos (200 OK)
-- Casos inválidos (400 Bad Request)
-- Validación de parámetros
+- Valid cases (200 OK)
+- Invalid cases (400 Bad Request)
+- Parameter validation
 
 #### Service
-- Equivalencia secuencial vs paralelo
-- Determinismo
-- No deadlocks (tests con timeout)
+- Sequential vs parallel equivalence
+- Determinism
+- No deadlocks (tests with timeout)
 
-### Cobertura
-- Cobertura mínima de líneas: **80%**
-- `mvn clean verify` debe pasar
+### Coverage
+- Minimum line coverage: **80%**
+- `mvn clean verify` must pass
 
 ---
 
-## 📊 Experimentos y análisis
+## 📊 Experiments and Analysis
 
-### Actividades
-Medir tiempos de ejecución para un `count` grande usando:
+### Activities
+Measure execution times for a large `count` using:
 
 - strategy=sequential
-- strategy=threads con:
-  - 1 hilo
+- strategy=threads with:
+  - 1 thread
   - availableProcessors()
   - 2 × availableProcessors()
   - 200
   - 500
 
-### Reporte (PDF) escrito con LateX
-- Objetivo 
-- Tabla de tiempos
-- Análisis de resultados
-- Interpretación de la Ley de Amdahl
-- Conclusiones técnicas
+### Report (PDF) written with LaTeX
+- Objective 
+- Time table
+- Results analysis
+- Interpretation of Amdahl's Law
+- Technical conclusions
 
 ---
 
-## 📦 Entregables
+## 📦 Deliverables
 
-1. Código fuente  
-2. Pruebas automatizadas  
-3. Cobertura cumplida  
-4. Swagger documentado  
-5. Reporte PDF con análisis  
+1. Source code  
+2. Automated tests  
+3. Coverage met  
+4. Documented Swagger  
+5. PDF report with analysis  
 
 ---
 
-## 📝 Rúbrica de evaluación
+## 📝 Evaluation Rubric
 
-| Criterio | Peso |
+| Criterion | Weight |
 |--------|------|
-| Fase 0 – Implementación base | 20% |
-| Fase 1 – Paralelismo con hilos | 25% |
-| Arquitectura y diseño | 20% |
-| Pruebas y cobertura | 20% |
-| Análisis y conclusiones | 15% |
+| Phase 0 – Base implementation | 20% |
+| Phase 1 – Parallelism with threads | 25% |
+| Architecture and design | 20% |
+| Testing and coverage | 20% |
+| Analysis and conclusions | 15% |
 | **Total** | **100%** |
 
 ---
 
-## ❌ Causales de nota cero
+## ❌ Zero Grade Causes
 
-- El proyecto no compila  
-- Las pruebas fallan  
-- No se cumple la cobertura mínima  
-- Resultados hardcodeados  
-- Copia entre equipos  
+- The project does not compile  
+- Tests fail  
+- Minimum coverage is not met  
+- Hardcoded results  
+- Copying between teams  
 
 ---
 
-## 🎓 Mensaje final
+## 🎓 Final Message
 
-> *El paralelismo no es una optimización automática.*  
-> *Es una decisión arquitectónica con costos y límites.*
+> *Parallelism is not an automatic optimization.*  
+> *It is an architectural decision with costs and limits.*
 
-Bienvenidos a **Arquitectura de Software (ARSW)**.
+Welcome to **Software Architecture (ARSW)**.
