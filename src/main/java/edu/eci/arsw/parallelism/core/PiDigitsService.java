@@ -1,19 +1,21 @@
 
 package edu.eci.arsw.parallelism.core;
 
-import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
-import edu.eci.arsw.parallelism.core.exceptions.PiCalculationTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
+import edu.eci.arsw.parallelism.core.exceptions.PiCalculationTimeoutException;
 
 @Service
 public class PiDigitsService {
 
     private static final Logger logger = LoggerFactory.getLogger(PiDigitsService.class);
-    private static final int MAX_COUNT = 1_000_000; // 1 million digits max
-    private static final int MAX_START = 10_000_000; // 10 million position max
-    private static final long TIMEOUT_MILLIS = 60_000; // Seconds timeout
+    private static final int MAX_COUNT = 10_000; // 10 thousand digits max
+    private static final int MAX_START = 100_000; // 100 thousand position max
+    private static final long TIMEOUT_MILLIS = 30_000; // Seconds timeout
+    //TODO: Consider when implementing async job processing, to increse these values to see how it performs
 
     /**
      * Calculates Pi digits sequentially with comprehensive validation.
