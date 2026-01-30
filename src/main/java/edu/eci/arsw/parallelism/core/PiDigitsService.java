@@ -1,21 +1,35 @@
-
 package edu.eci.arsw.parallelism.core;
 
+import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
+import edu.eci.arsw.parallelism.concurrency.ThreadJoinStrategy;
+import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
+import edu.eci.arsw.parallelism.core.exceptions.PiCalculationTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import edu.eci.arsw.parallelism.core.exceptions.InvalidPiCalculationException;
-import edu.eci.arsw.parallelism.core.exceptions.PiCalculationTimeoutException;
 
 @Service
 public class PiDigitsService {
 
     private static final Logger logger = LoggerFactory.getLogger(PiDigitsService.class);
-    private static final int MAX_COUNT = 10_000; // 10 thousand digits max
-    private static final int MAX_START = 100_000; // 100 thousand position max
-    private static final long TIMEOUT_MILLIS = 30_000; // Seconds timeout
-    //TODO: Consider when implementing async job processing, to increse these values to see how it performs
+    private static final int MAX_COUNT = 1_000_000; // 1 million digits max
+    private static final int MAX_START = 10_000_000; // 10 million position max
+    private static final long TIMEOUT_MILLIS = 60_000; // Seconds timeout
+    private static final int MAX_THREADS = 200; 
+
+    private final SequentialStrategy sequentialStrategy;
+    private final ThreadJoinStrategy threadJoinStrategy;
+
+    /**
+     * Constructor with dependency injection of strategies.
+     * 
+     * @param sequentialStrategy sequential calculation strategy
+     * @param threadJoinStrategy parallel calculation strategy using threads
+     */
+    public PiDigitsService(SequentialStrategy sequentialStrategy, ThreadJoinStrategy threadJoinStrategy ) {
+        this.sequentialStrategy = sequentialStrategy;
+        this.threadJoinStrategy = threadJoinStrategy;
+    }
 
     /**
      * Calculates Pi digits sequentially with comprehensive validation.
@@ -37,7 +51,7 @@ public class PiDigitsService {
         long startTime = System.currentTimeMillis();
         
         try {
-            String result = PiDigits.getDigitsHex(start, count);
+            String result = sequentialStrategy.calculate(start, count, 1);
             
             long elapsedTime = System.currentTimeMillis() - startTime;
             logger.info("Pi calculation completed: start={}, count={}, time={}ms", 
@@ -111,5 +125,63 @@ public class PiDigitsService {
      */
     public int getMaxStart() {
         return MAX_START;
+    }
+
+    /**
+     * Calculates Pi digits using the specified strategy.
+     * 
+     * @param start starting position (0-indexed)
+     * @param count number of digits to calculate
+     * @param threads number of threads to use (required for 'threads' strategy)
+     * @param strategy calculation strategy: 'sequential' or 'threads'
+     * @return hexadecimal string of Pi digits
+     * @throws InvalidPiCalculationException if parameters are invalid
+     */
+    public String calculateWithStrategy(int start, int count, Integer threads, String strategy) {
+
+        logger.debug("Calculating Pi digits with strategy: start={}, count={}, threads={}, strategy={}", 
+                 start, count, threads, strategy);
+
+        validateInputs(start, count);
+
+        if (strategy == null || strategy.equals("sequential")) {
+
+            logger.debug("Using sequential strategy");
+            return calculateSequential(start, count);
+
+        } else if (strategy.equals("threads")) {
+            if (threads == null) {
+            throw new InvalidPiCalculationException(
+                "Threads parameter is required when using 'threads' strategy",
+                "threads", null);
+            }
+        
+            if (threads <= 0) {
+                throw new InvalidPiCalculationException(
+                    "Threads parameter must be greater than 0",
+                    "threads", threads);
+            }
+
+            if (threads > MAX_THREADS) {
+                throw new InvalidPiCalculationException(
+                String.format("Threads parameter exceeds maximum allowed value of %d", MAX_THREADS),
+                "threads", threads);
+            }
+
+            try {
+                logger.info("Attempting parallel calculation with {} threads", threads);
+                return threadJoinStrategy.calculate(start, count, threads);
+                
+            } catch (Exception e) {
+                logger.warn("Parallel strategy failed: {}. Falling back to sequential.", e.getMessage());
+                logger.debug("Exception details:", e);
+                return sequentialStrategy.calculate(start, count, 1);
+            }
+
+        } else {
+            throw new InvalidPiCalculationException(
+                    "Invalid strategy. Must be 'sequential' or 'threads'",
+                    "strategy", strategy);
+        }
     }
 }
