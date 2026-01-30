@@ -1,5 +1,4 @@
 package edu.eci.arsw.parallelism.concurrency;
-import edu.eci.arsw.parallelism.concurrency.ParallelStrategy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,7 +17,10 @@ public class ThreadJoinStrategy implements ParallelStrategy {
     @Override
     public String calculate(int start, int count, int threads) {
 
-        int segmentSize = count / threads; // segmentos
+
+        long startTime = System.currentTimeMillis();
+
+        int segmentSize = count / threads;
         int remainder = count % threads;
 
         Thread[] workers = new Thread[threads];
@@ -26,7 +28,7 @@ public class ThreadJoinStrategy implements ParallelStrategy {
         String[] results = new String[threads];
 
         int currentStart = start;
-        for (int i = 0; i < threads; i++) { // con esto creamos los hilos
+        for (int i = 0; i < threads; i++) {
             int segmentCount = segmentSize + (i < remainder ? 1 : 0);
             final int segmentStart = currentStart;
             final int finalSegmentCount = segmentCount;
@@ -42,7 +44,7 @@ public class ThreadJoinStrategy implements ParallelStrategy {
 
         for (Thread worker : workers) {
             try {
-                worker.join(); // aca sincronizamos
+                worker.join();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException("Thread interrupted", e);

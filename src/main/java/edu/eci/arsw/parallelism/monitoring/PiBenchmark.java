@@ -56,7 +56,7 @@ public class PiBenchmark {
 
 
         long seqTime = runSingleTest("sequential", start, count, 1);
-        System.out.printf("%-35s %10d ms%n", "Sequential", seqTime); // Sequential execution
+        System.out.printf("%-35s %10d ms%n", "Sequential", seqTime);
 
 
         int[] threadConfigs = {1, availableProcessors, 2 * availableProcessors, 200, 500};
@@ -66,7 +66,7 @@ public class PiBenchmark {
                 "Threads (2×availableProcessors=" + (2 * availableProcessors) + ")",
                 "Threads (200)",
                 "Threads (500)"
-        }; // Threads execution
+        };
 
         for (int i = 0; i < threadConfigs.length; i++) {
             long time = runSingleTest("threads", start, count, threadConfigs[i]);
