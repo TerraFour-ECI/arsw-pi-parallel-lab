@@ -1,9 +1,18 @@
 package edu.eci.arsw.parallelism.concurrency;
-
 import edu.eci.arsw.parallelism.concurrency.ParallelStrategy;
 
+/**
+ * A strategy for calculating hexadecimal digits of Pi using multiple threads.
+ */
 public class ThreadJoinStrategy implements ParallelStrategy {
 
+    /**
+     * Calculates hexadecimal digits of Pi using multiple threads.
+     * @param start the starting position (0-indexed) from which to begin calculating Pi digits
+     * @param count the total number of hexadecimal digits to compute across all threads
+     * @param threads the number of threads to use for dividing the work
+     * @return a string containing the concatenated hexadecimal digits of Pi in order
+     */
     @Override
     public String calculate(int start, int count, int threads) {
 
@@ -46,6 +55,10 @@ public class ThreadJoinStrategy implements ParallelStrategy {
         return result.toString();
     }
 
+    /**
+     * Returns the name of the strategy.
+     * @return the name of the strategy
+     */
     @Override
     public String name() {
         return "threads";
