@@ -1,5 +1,6 @@
 package edu.eci.arsw.parallelism.core;
 
+import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +21,9 @@ class PiDigitsServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PiDigitsService();
+        SequentialStrategy sequentialStrategy = new SequentialStrategy();
+        ThreadJoinStrategy threadJoinStrategy = new ThreadJoinStrategy();
+        service = new PiDigitsService(sequentialStrategy);
     }
 
     // ========== Happy Path Tests ==========
@@ -222,15 +225,81 @@ class PiDigitsServiceTest {
     }
 
 
-    // TODO: After implement the concurrency and paralellism, we should uncomment
-    // this test and see if it can handle this amount
-    // @Test
-    // @DisplayName("Should handle very large start positions")
-    // void testCalculateSequentialLargeStartPosition() {
-    // String result = service.calculateSequential(1000000, 5);
+    // ========== Phase 1 - calculateWithStrategy Tests ==========
+    
 
-    // assertNotNull(result);
-    // assertEquals(5, result.length());
-    // assertTrue(result.matches("[0-9A-F]+"));
-    // }
+    @Test
+    @DisplayName("Should default to sequential when strategy is null")
+    void testCalculateWithStrategyDefaultsToSequential() {
+        String result = service.calculateWithStrategy(0, 5, null, null);
+        assertEquals("243F6", result);
+    }
+    
+ 
+    @Test
+    @DisplayName("Should work with explicit sequential strategy")
+    void testCalculateWithStrategySequential() {
+        String result = service.calculateWithStrategy(0, 5, null, "sequential");
+        assertEquals("243F6", result);
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for invalid strategy")
+    void testCalculateWithStrategyInvalid() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 4, "invalid")
+        );
+        assertEquals("strategy", exception.getField());
+    }
+    
+
+    @Test
+    @DisplayName("Should require threads parameter when using threads strategy")
+    void testCalculateWithStrategyThreadsRequired() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, null, "threads")
+        );
+        assertEquals("threads", exception.getField());
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for threads <= 0")
+    void testCalculateWithStrategyThreadsInvalid() {
+        assertThrows(InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 0, "threads"));
+        assertThrows(InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, -5, "threads"));
+    }
+    
+
+    @Test
+    @DisplayName("Should throw exception for threads exceeding maximum")
+    void testCalculateWithStrategyThreadsExceedsMax() {
+        InvalidPiCalculationException exception = assertThrows(
+            InvalidPiCalculationException.class,
+            () -> service.calculateWithStrategy(0, 5, 201, "threads")
+        );
+        assertTrue(exception.getMessage().contains("200"));
+    }
+    
+
+    @Test
+    @DisplayName("Should accept threads strategy with valid threads (fallback)")
+    void testCalculateWithStrategyThreadsValid() {
+        String result = service.calculateWithStrategy(0, 5, 4, "threads");
+        assertEquals("243F6", result); 
+    }
+    
+    @Test
+    @DisplayName("Should return same result for sequential and threads (fallback)")
+    void testCalculateWithStrategyEquivalence() {
+        String sequential = service.calculateSequential(0, 10);
+        String withThreads = service.calculateWithStrategy(0, 10, 4, "threads");
+        assertEquals(sequential, withThreads);
+    }
+
 }
