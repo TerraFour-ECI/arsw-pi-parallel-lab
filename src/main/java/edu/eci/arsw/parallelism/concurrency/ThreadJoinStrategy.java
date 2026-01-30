@@ -17,9 +17,6 @@ public class ThreadJoinStrategy implements ParallelStrategy {
     @Override
     public String calculate(int start, int count, int threads) {
 
-
-        long startTime = System.currentTimeMillis();
-
         int segmentSize = count / threads;
         int remainder = count % threads;
 
