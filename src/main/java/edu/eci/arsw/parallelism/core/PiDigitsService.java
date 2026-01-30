@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 public class PiDigitsService {
 
     private static final Logger logger = LoggerFactory.getLogger(PiDigitsService.class);
-    private static final int MAX_COUNT = 1_000_000; // 1 million digits max
-    private static final int MAX_START = 10_000_000; // 10 million position max
-    private static final long TIMEOUT_MILLIS = 60_000; // Seconds timeout
+    private static final int MAX_COUNT = 10_000; // 10 thousand digits max
+    private static final int MAX_START = 100_000; // 100 thousand position max
+    private static final long TIMEOUT_MILLIS = 30_000; // Seconds timeout
     private static final int MAX_THREADS = 200; 
 
     private final SequentialStrategy sequentialStrategy;
