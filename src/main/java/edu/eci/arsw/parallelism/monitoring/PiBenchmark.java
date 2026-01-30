@@ -2,12 +2,16 @@ package edu.eci.arsw.parallelism.monitoring;
 
 import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
 import edu.eci.arsw.parallelism.concurrency.ThreadJoinStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Benchmark class for measuring Pi digit calculation performance.
  * Compares sequential vs parallel strategies with different thread counts.
  */
 public class PiBenchmark {
+
+    private static final Logger logger = LoggerFactory.getLogger(PiBenchmark.class);
 
     private final SequentialStrategy sequentialStrategy;
     private final ThreadJoinStrategy threadJoinStrategy;
@@ -47,16 +51,16 @@ public class PiBenchmark {
     public void runFullBenchmark(int start, int count) {
         int availableProcessors = Runtime.getRuntime().availableProcessors();
 
-        System.out.println();
-        System.out.println("PI DIGITS BENCHMARK");
-        System.out.println();
-        System.out.println("Start: " + start + ", Count: " + count);
-        System.out.println("Available Processors: " + availableProcessors);
-        System.out.println();
+        logger.info("");
+        logger.info("PI DIGITS BENCHMARK");
+        logger.info("");
+        logger.info("Start: {}, Count: {}", start, count);
+        logger.info("Available Processors: {}", availableProcessors);
+        logger.info("");
 
 
         long seqTime = runSingleTest("sequential", start, count, 1);
-        System.out.printf("%-35s %10d ms%n", "Sequential", seqTime);
+        logger.info("{} {} ms", String.format("%-35s", "Sequential"), seqTime);
 
 
         int[] threadConfigs = {1, availableProcessors, 2 * availableProcessors, 200, 500};
@@ -71,10 +75,10 @@ public class PiBenchmark {
         for (int i = 0; i < threadConfigs.length; i++) {
             long time = runSingleTest("threads", start, count, threadConfigs[i]);
             double speedup = (double) seqTime / time;
-            System.out.printf("%-35s %10d ms (Speedup: %.2fx)%n", labels[i], time, speedup);
+            logger.info("{} {} ms (Speedup: {}x)", String.format("%-35s", labels[i]), time, String.format("%.2f", speedup));
         }
 
-        System.out.println();
+        logger.info("");
     }
 
     /**
