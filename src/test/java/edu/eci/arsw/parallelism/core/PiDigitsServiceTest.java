@@ -1,10 +1,12 @@
 package edu.eci.arsw.parallelism.core;
 
 import edu.eci.arsw.parallelism.concurrency.SequentialStrategy;
+import edu.eci.arsw.parallelism.concurrency.ThreadJoinStrategy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ class PiDigitsServiceTest {
     void setUp() {
         SequentialStrategy sequentialStrategy = new SequentialStrategy();
         ThreadJoinStrategy threadJoinStrategy = new ThreadJoinStrategy();
-        service = new PiDigitsService(sequentialStrategy);
+        service = new PiDigitsService(sequentialStrategy, threadJoinStrategy);
     }
 
     // ========== Happy Path Tests ==========

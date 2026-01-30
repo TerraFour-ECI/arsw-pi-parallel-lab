@@ -1,9 +1,11 @@
 package edu.eci.arsw.parallelism.concurrency;
 import edu.eci.arsw.parallelism.concurrency.ParallelStrategy;
+import org.springframework.stereotype.Component;
 
 /**
  * A strategy for calculating hexadecimal digits of Pi using multiple threads.
  */
+@Component
 public class ThreadJoinStrategy implements ParallelStrategy {
 
     /**
