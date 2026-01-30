@@ -25,18 +25,8 @@ public class PiDigitsController {
 
     @Operation(
             summary = "Get digits of Pi",
-            description = """
-                Calculates and returns a sequence of hexadecimal digits of Pi starting from a given position.
-                
-                Supports both sequential and parallel calculation strategies:
-                - Without 'strategy' parameter: Uses sequential calculation (default)
-                - With 'strategy=sequential': Explicitly uses sequential calculation
-                - With 'strategy=threads': Uses parallel calculation with specified number of threads
-                
-                For parallel calculation, the 'threads' parameter is required and must be between 1 and 200.
-                """
+            description = "Calculates and returns a sequence of digits of Pi starting from a given position"
     )
-
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -48,29 +38,18 @@ public class PiDigitsController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = """
-                        Invalid parameters:
-                        - start must be >= 0
-                        - count must be >= 1
-                        - threads must be > 0 (if provided)
-                        - strategy must be 'sequential' or 'threads'
-                        - threads is required when strategy='threads'
-                        """,
+                    description = "Invalid parameters (start must be >= 0, count must be >= 1)",
                     content = @Content
             )
     })
     @GetMapping("/digits")
     public PiResponse digits(
-            @Parameter(description = "Starting position for Pi digits (0-indexed)", example = "0", required = true)
+            @Parameter(description = "Starting position for Pi digits (0-indexed)", example = "0")
             @RequestParam @Min(0) int start,
-            @Parameter(description = "Number of digits to calculate", example = "10", required = true)
-            @RequestParam @Min(1) int count,
-            @Parameter(description = "Number of threads to use (optional, must be > 0)", example = "4", required = false)
-            @RequestParam(required = false) @Min(1) Integer threads,
-            @Parameter(description = "Calculation strategy: 'sequential' or 'threads' (optional)", example = "threads", schema = @Schema(allowableValues = {"sequential", "threads"}), required = false)
-            @RequestParam(required = false) String strategy
+            @Parameter(description = "Number of digits to calculate", example = "10")
+            @RequestParam @Min(1) int count
     ) {
-        String digits = service.calculateWithStrategy(start, count, threads, strategy);
+        String digits = service.calculateSequential(start, count);
         return new PiResponse(start, count, digits);
     }
 }

@@ -20,10 +20,7 @@ class PiDigitsServiceTest {
 
     @BeforeEach
     void setUp() {
-
-        SequentialStrategy sequentialStrategy = new SequentialStrategy();
-        // ThreadJoinStrategy threadJoinStrategy = new ThreadJoinStrategy();
-        service = new PiDigitsService(sequentialStrategy);
+        service = new PiDigitsService();
     }
 
     // ========== Happy Path Tests ==========
