@@ -1,15 +1,17 @@
 package edu.eci.arsw.parallelism.api;
 
-import jakarta.validation.ConstraintViolationException;
+import java.time.Instant;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.Instant;
-import java.util.Map;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -44,7 +46,13 @@ public class GlobalExceptionHandler {
                 "timestamp", Instant.now().toString(),
                 "status", status.value(),
                 "error", status.getReasonPhrase(),
-                "message", message
-        ));
+                "message", message));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodValidation(
+            HandlerMethodValidationException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Validation failed: " + ex.getMessage());
     }
 }
