@@ -361,7 +361,9 @@ Measure execution times for a large `count` using:
 - Results analysis
 - Interpretation of Amdahl's Law
 - Technical conclusions
-
+- The generated report in PDF format can be found at: [report/main.pdf](report/main.pdf)
+  
+Click the link above to view the final LaTeX-generated report.
 ---
 
 ## 📦 Deliverables
