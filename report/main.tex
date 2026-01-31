@@ -1,0 +1,522 @@
+\documentclass[10pt,a4paper,twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{parskip}
+
+% Geometry settings
+\geometry{
+    a4paper,
+    top=2cm,
+    bottom=2cm,
+    left=1.5cm,
+    right=1.5cm,
+    headsep=0.5cm,
+    footskip=1cm
+}
+
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Lab 01 - Parallelism and Concurrency}
+\lhead{Software Architecture}
+\cfoot{\thepage}
+
+\pagenumbering{arabic}
+
+% Code listing settings
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=leftline,
+    framerule=2pt,
+    rulecolor=\color{blue!30},
+    backgroundcolor=\color{gray!5},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    columns=flexible,
+    aboveskip=\medskipamount,
+    belowskip=\medskipamount,
+    xleftmargin=15pt,
+    language=Java
+}
+
+% Section formatting
+\definecolor{darkblue}{RGB}{0,32,96}
+
+% Cambiar todos los títulos y enlaces a darkblue
+
+\titleformat{\section}
+{\color{darkblue}\normalfont\large\bfseries}
+{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\color{darkblue}\normalfont\normalsize\bfseries}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\color{darkblue}\normalfont\small\bfseries}
+{\thesubsubsection}{1em}{}
+
+% Custom boxes
+\newtcolorbox{conceptbox}[1]{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    colbacktitle=blue!80!black,
+    coltitle=white,
+    title={\textbf{#1}},
+    fonttitle=\bfseries\small,
+    boxrule=0.8pt,
+    before skip=8pt,
+    after skip=8pt,
+    left=4pt,
+    right=4pt,
+    top=6pt,
+    bottom=6pt,
+    breakable
+}
+
+\newtcolorbox{resultbox}[1]{
+    colback=green!5!white,
+    colframe=green!75!black,
+    colbacktitle=green!80!black,
+    coltitle=white,
+    title={\textbf{#1}},
+    fonttitle=\bfseries\small,
+    boxrule=0.8pt,
+    before skip=8pt,
+    after skip=8pt,
+    left=4pt,
+    right=4pt,
+    top=6pt,
+    bottom=6pt,
+    breakable
+}
+
+\newtcolorbox{note}{
+    colback=yellow!10!white,
+    colframe=orange!75!black,
+    colbacktitle=orange!80!black,
+    coltitle=white,
+    title={\textbf{Important Note}},
+    fonttitle=\bfseries\small,
+    boxrule=0.8pt,
+    before skip=8pt,
+    after skip=8pt,
+    left=4pt,
+    right=4pt,
+    top=6pt,
+    bottom=6pt,
+    breakable
+}
+
+% List formatting
+\setlist[itemize]{leftmargin=15pt, itemsep=2pt, parsep=0pt, topsep=5pt}
+\setlist[enumerate]{leftmargin=15pt, itemsep=2pt, parsep=0pt, topsep=5pt}
+
+% Caption formatting
+\captionsetup{font=small, labelfont=bf, format=hang, indention=0pt, margin=10pt}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    urlcolor=darkblue,
+    citecolor=darkblue,
+    pdfborder={0 0 0}
+}
+
+% Title page
+\title{\vspace{-1cm}
+    \begin{center}
+        \includegraphics[width=0.25\textwidth]{media/university_logo.png}
+    \end{center}
+    \vspace{1.5cm}
+    \textbf{\Large Software Architecture Laboratory}\\
+    \vspace{1cm}
+    \textbf{\huge Laboratory No. 1}\\
+    \textbf{\huge Parallelism and Concurrency}\\
+    \vspace{1.5cm}
+    \large Calculating $\pi$ Digits with Java 21 \& Spring Boot
+}
+
+\author{
+    \vspace{2cm}
+    \textbf{Students:}\\[0.05cm]
+    Andersson David S\'{a}nchez M\'{e}ndez\\[0.3cm]
+    Cristian Santiago Pedraza Rodr\'{i}guez\\[0.3cm]
+    Elizabeth Correa Su\'{a}rez\\[0.3cm]
+    Juan Sebastian Ortega Mu\~{n}oz\\[1.5cm]
+    \textbf{Instructor:} Professor Javier Ivan Toquica Barrera\\[0.5cm]
+    \textbf{Course:} Software Architecture (ARSW)\\[0.3cm]
+    \textbf{Institution:} Escuela Colombiana de Ingenier\'{i}a Julio Garavito\\[2cm]
+}
+
+\date{January 30, 2026}
+
+\begin{document}
+
+\onecolumn
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\newpage
+
+\twocolumn
+
+% ============================================
+\section{Objective}
+% ============================================
+
+This laboratory focuses on implementing parallelism concepts in a Spring Boot application that calculates hexadecimal digits of $\pi$ using the Bailey-Borwein-Plouffe (BBP) algorithm. The implementation follows a layered architecture with clear separation between the REST API, business logic, and concurrency strategies.
+
+The specific goals include:
+
+
+% ============================================
+\section{Experiments and Results}
+% ============================================
+
+\subsection{API Documentation Evidence}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/swagger-ui.png}
+    \caption{Swagger UI documentation available at \texttt{/swagger-ui/index.html}.}
+\end{figure}
+
+\subsection{Testing and Coverage}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/mvn-clean-test.png}
+    \caption{Successful execution of \texttt{mvn clean test} (all tests pass).}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/mvn-clean-verify.png}
+    \caption{Successful execution of \texttt{mvn clean verify} (coverage and quality checks passed).}
+\end{figure}
+
+\subsection{Benchmark Results by Team Member}
+
+\subsubsection{Elizabeth -- AMD Ryzen AI 9 365}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/elizabeth-benchmark-result.jpeg}
+    \caption{Benchmark results on AMD Ryzen AI 9 365 (10C/20T, 2.00 GHz).}
+\end{figure}
+
+\subsubsection{Sebastian -- Intel i7-13620H}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/sebastian-benchmark-result.jpeg}
+    \caption{Benchmark results on Intel i7-13620H (10C/16T, 2.40 GHz).}
+\end{figure}
+
+\subsubsection{Andersson -- Intel i7-1255U}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/andersson-benchmark-result.jpeg}
+    \caption{Benchmark results on Intel i7-1255U (10C/12T, 1.70 GHz).}
+\end{figure}
+
+\subsubsection{Cristian -- Intel i5-1135G7}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{media/cristian-benchmark-result.png}
+    \caption{Benchmark results on Intel i5-1135G7 (4C/8T, 2.40 GHz).}
+\end{figure}
+
+\subsection{Summary of Experimental Results}
+\begin{itemize}
+    \item All implementations passed functional and quality tests, as evidenced by Maven and Swagger outputs.
+    \item Benchmarks show that parallel strategies provide significant speedup, with optimal performance near the number of logical processors.
+    \item AMD architecture achieved the highest speedup and best absolute performance; Intel hybrid and traditional architectures showed expected scaling and plateau/degradation at high thread counts.
+    \item Results confirm Amdahl's Law: speedup is limited by the sequential fraction and hardware architecture.
+\end{itemize}
+
+\subsection{Strategy Pattern Implementation}
+
+The concurrency layer implements the Strategy pattern through the \texttt{ParallelStrategy} interface:
+
+\begin{lstlisting}[caption={ParallelStrategy Interface}]
+public interface ParallelStrategy {
+  String calculate(int start, 
+                   int count, 
+                   int threads);
+  String name();
+}
+\end{lstlisting}
+
+Two concrete strategies were implemented:
+
+\begin{itemize}
+    \item \textbf{SequentialStrategy}: Executes the calculation in a single thread, ignoring the \texttt{threads} parameter.
+    \item \textbf{ThreadJoinStrategy}: Divides the workload among N threads and synchronizes results using \texttt{join()}.
+\end{itemize}
+
+\subsection{ThreadJoinStrategy Implementation}
+
+The parallel strategy divides the digit range into segments distributed across threads:
+
+\begin{lstlisting}[caption={Thread Work Division}]
+int segmentSize = count / threads;
+int remainder = count % threads;
+
+for (int i = 0; i < threads; i++) {
+  int segCount = segmentSize + 
+    (i < remainder ? 1 : 0);
+  // Create and start thread
+  workers[i] = new Thread(() -> {
+    results[index] = 
+      calculateSegment(start, count);
+  });
+  workers[i].start();
+}
+\end{lstlisting}
+
+The remainder distribution ensures even workload when \texttt{count} is not evenly divisible by \texttt{threads}. After all threads complete via \texttt{join()}, results are concatenated in order.
+
+\subsection{REST API Endpoint}
+
+The controller exposes a single endpoint with optional parallelism parameters:
+
+\begin{lstlisting}[caption={API Endpoint}]
+GET /api/v1/pi/digits
+  ?start={int}     // Required, >= 0
+  &count={int}     // Required, >= 1
+  &threads={int}   // Optional, >= 1
+  &strategy={str}  // Optional
+\end{lstlisting}
+
+Supported strategies: \texttt{sequential} (default) and \texttt{threads}.
+
+\subsection{Service Layer Validation}
+
+The \texttt{PiDigitsService} enforces business constraints:
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Parameter} & \textbf{Constraint} \\
+        \hline
+        \texttt{start} & $0 \leq$ start $\leq 100,000$ \\
+        \hline
+        \texttt{count} & $1 \leq$ count $\leq 10,000$ \\
+        \hline
+        \texttt{threads} & $1 \leq$ threads $\leq 200$ \\
+        \hline
+        \texttt{timeout} & 30 seconds max \\
+        \hline
+    \end{tabular}
+    \caption{Service validation constraints}
+    \label{tab:constraints}
+\end{table}
+
+% ============================================
+\section{Theoretical Framework}
+% ============================================
+
+\subsection{Amdahl's Law}
+
+The theoretical speedup when parallelizing a program is bounded by:
+
+\begin{equation}
+    S(n) = \frac{1}{(1 - P) + \frac{P}{n}}
+\end{equation}
+
+Where $P$ is the parallelizable fraction and $n$ is the number of threads. For the BBP algorithm, $P$ approaches 1.0 since digit computation is independent, but overhead from thread creation and result concatenation introduces a sequential component.
+
+\subsection{Thread Synchronization with join()}
+
+The \texttt{join()} method blocks the calling thread until the target thread terminates. This provides a simple synchronization mechanism:
+
+\begin{lstlisting}[caption={Thread Synchronization}]
+for (Thread worker : workers) {
+  try {
+    worker.join();
+  } catch (InterruptedException e) {
+    Thread.currentThread().interrupt();
+    throw new RuntimeException(e);
+  }
+}
+\end{lstlisting}
+
+% ============================================
+\section{Methodology}
+% ============================================
+
+\subsection{Test Environment}
+
+Experiments were conducted using the following configuration:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Component} & \textbf{Specification} \\
+        \hline
+        Java Version & OpenJDK 21 \\
+        \hline
+        Spring Boot & 3.x \\
+        \hline
+        Build Tool & Maven \\
+        \hline
+        Test Framework & JUnit 5 \\
+        \hline
+    \end{tabular}
+    \caption{Development environment}
+    \label{tab:env}
+\end{table}
+
+\subsection{Experiment Parameters}
+
+Performance measurements were taken with:
+
+\begin{itemize}
+    \item \textbf{count}: Large values (1000+) for measurable execution times
+    \item \textbf{start}: 0 (beginning of $\pi$ decimal expansion)
+    \item \textbf{Thread configurations}: 1, N, 2N, 200 (where N = available processors)
+\end{itemize}
+
+% ============================================
+\section{Results}
+% ============================================
+
+\subsection{Execution Time Comparison}
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Strategy} & \textbf{Threads} & \textbf{Time} & \textbf{Speedup} \\
+        \hline
+        Sequential & 1 & $T_{seq}$ & 1.00x \\
+        \hline
+        Threads & 1 & $\approx T_{seq}$ & $\approx$1.00x \\
+        \hline
+        Threads & N & $T_{N}$ & $T_{seq}/T_{N}$ \\
+        \hline
+        Threads & 2N & $T_{2N}$ & $T_{seq}/T_{2N}$ \\
+        \hline
+        Threads & 200 & $T_{200}$ & varies \\
+        \hline
+    \end{tabular}
+    \caption{Execution times (N = available processors)}
+    \label{tab:results}
+\end{table}
+
+\subsection{Observations}
+
+\begin{resultbox}{Key Findings}
+\begin{enumerate}
+    \item Speedup increases with thread count up to the number of physical cores.
+    \item Beyond core count, diminishing returns occur due to context switching overhead.
+    \item With 200 threads, performance may degrade compared to optimal thread count.
+    \item Results are deterministic: parallel output matches sequential output exactly.
+\end{enumerate}
+\end{resultbox}
+
+% ============================================
+\section{Analysis}
+% ============================================
+
+\subsection{Correctness Verification}
+
+The implementation guarantees correctness through:
+
+\begin{itemize}
+    \item \textbf{Deterministic algorithm}: BBP produces identical results regardless of execution order.
+    \item \textbf{Ordered concatenation}: Results are stored in indexed array and joined in order.
+    \item \textbf{No shared mutable state}: Each thread writes to its own index in the results array.
+\end{itemize}
+
+\subsection{Thread Overhead}
+
+Creating platform threads incurs overhead:
+
+\begin{itemize}
+    \item Thread object allocation
+    \item OS thread scheduling
+    \item Context switching between threads
+    \item Synchronization at \texttt{join()} barrier
+\end{itemize}
+
+For small \texttt{count} values, this overhead may exceed the parallel computation benefit.
+
+\subsection{Fallback Mechanism}
+
+The service implements automatic fallback:
+
+\begin{lstlisting}[caption={Fallback to Sequential}]
+try {
+  return threadJoinStrategy
+    .calculate(start, count, threads);
+} catch (Exception e) {
+  logger.warn("Parallel failed");
+  return sequentialStrategy
+    .calculate(start, count, 1);
+}
+\end{lstlisting}
+
+This ensures reliability when parallel execution fails.
+
+% ============================================
+\section{Conclusions}
+% ============================================
+
+\begin{enumerate}
+    \item The Strategy pattern provides clean separation between sequential and parallel implementations, allowing runtime selection without code changes.
+    
+    \item The BBP algorithm is well-suited for parallelization due to its position-independent computation property.
+    
+    \item Optimal thread count typically matches the number of physical CPU cores. Exceeding this introduces overhead without proportional speedup.
+    
+    \item The \texttt{join()} synchronization mechanism provides simple and correct thread coordination for this use case.
+    
+    \item Input validation at the service layer prevents resource exhaustion (max 10,000 digits, 200 threads, 30s timeout).
+\end{enumerate}
+
+% ============================================
+\section{References}
+% ============================================
+
+\begin{enumerate}
+    \item Bailey, D., Borwein, P., Plouffe, S. (1997). On the Rapid Computation of Various Polylogarithmic Constants. \textit{Mathematics of Computation}, 66(218).
+    
+    \item Amdahl, G. M. (1967). Validity of the single processor approach to achieving large scale computing capabilities. \textit{AFIPS Conference Proceedings}.
+    
+    \item Oracle. Java 21 Documentation - Concurrency. \url{https://docs.oracle.com/en/java/javase/21/}
+    
+    \item Spring Framework. Spring Boot Reference Documentation. \url{https://spring.io/projects/spring-boot}
+\end{enumerate}
+
+\end{document}
